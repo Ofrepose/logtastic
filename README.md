@@ -3,7 +3,7 @@
 
 Logtastic is a simple npm package that provides a flexible way to log messages with customizable colors, styles, and backgrounds. It's designed to make your console logs more visually appealing and easier to differentiate. With Logtastic, you can easily add a touch of style to your terminal output.
 
-[<img src="https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic.jpg">](https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic.jpg)
+[<img src="https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic2.jpg">](https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic2.jpg)
 
 ## Installation
 
