@@ -16,9 +16,7 @@ npm install @ofrepose/logtastic
 ## Usage
 
 ```javascript
-const Logtastic = require('@ofrepose/logtastic');
-
-const logger = new Logtastic();
+const logger = require('@ofrepose/logtastic');
 
 // Logging a simple text message
 logger.log("Hello, Logtastic!", { color: "green", style: "bold" });
