@@ -53,12 +53,41 @@ class Logtastic {
         }
     }
 
+
+    /**
+     * Display default settings and configuration instructions.
+     *
+     * Logs a message to the console displaying the default settings and provides
+     * instructions on how users can modify these settings. The function logs a series
+     * of messages with blue color and an override option to ensure consistent styling.
+     *
+     * @returns {void}
+     */
     getDefaults() {
         this.log(`Your default settings are:`, { color: 'blue', override: true });
         this.log(this.default, { color: 'blue', override: true });
         this.log(`You can change these settings by using:\nIE: logger.setDefaults({ color: "white", style: "bold" })`, { override: true });
     }
 
+
+    /**
+     * Set default log message formatting options.
+     *
+     * Modifies the default settings for log message formatting, including color, style,
+     * and background style. Accepts an options object containing color, style, and bgStyle.
+     * If provided options are valid, the function updates the corresponding default value
+     * and logs a status message confirming the change. If an option is invalid, an error
+     * message is logged.
+     *
+     * @param {Object} options - Options for updating default formatting settings.
+     *   @param {string} [options.color] - The text color to set as the default.
+     *     Possible values: 'reset', 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+     *   @param {string} [options.style] - The text style to set as the default.
+     *     Possible values: 'reset', 'bold', 'dim', 'italic', 'underline', 'inverse', 'hidden', 'strikethrough'.
+     *   @param {string} [options.bgStyle] - The background color to set as the default.
+     *     Possible values: 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+     * @returns {void}
+     */
     setDefaults(options = {}) {
         const { color, style, bgStyle } = options;
         this.log(`Logtastic:`, { color: 'blue', override: true })
@@ -96,13 +125,25 @@ class Logtastic {
         this.log(`You can change these settings by using:\nIE: logger.setMode({ silent: true/false })`, { override: true });
     }
 
+
+    /**
+     * Set the logging mode to control log visibility.
+     *
+     * Modifies the logging mode to control whether log messages are visible or not.
+     * Accepts an options object containing a `silent` property. If the `silent` property
+     * is set to `true`, log messages will not be visible; if set to `false`, log messages
+     * will be visible.
+     *
+     * @param {Object} options - Options for updating logging mode.
+     *   @param {boolean} [options.silent] - If true, activates silent mode (logs are not visible).
+     * @returns {void}
+     */
     setMode(options = {}) {
         const { silent } = options;
         if (silent && !!silent) {
             this.mode.silent = silent;
         }
         this.log(`Silent mode is ${silent && 'active, logs will not be visible' || 'inactive, logs will be visible'}`,{ override: true })
-
     }
 }
 
