@@ -37,6 +37,20 @@ Logs a message with customizable color, style, and background.
   - `color` (string, optional): The text color to apply. Possible values: 'reset', 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
   - `style` (string, optional): The text style to apply. Possible values: 'reset', 'bold', 'dim', 'italic', 'underline', 'inverse', 'hidden', 'strikethrough'.
   - `bgStyle` (string, optional): The background color to apply. Possible values: 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+
+### `err(text, options)`
+
+Logs an error message with customizable color, style, and background.
+
+- `text` (string|object): The error message or object to be logged.
+- `options` (Object):
+  - `color` (string, optional): The text color to apply. Possible values: 'reset', 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+  - `style` (string, optional): The text style to apply. Possible values: 'reset', 'bold', 'dim', 'italic', 'underline', 'inverse', 'hidden', 'strikethrough'.
+  - `bgStyle` (string, optional): The background color to apply. Possible values: 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+  - `time` (boolean, optional): Whether to include a timestamp. Default is true.
+  - `override` (boolean, optional): Override the silent mode and log even in silent mode. Default is false.
+  - `trace` (boolean, optional): Include stack trace. Default is true.
+  - `escape` (boolean, optional): Whether to exit the process after logging. Default is true.
  
 ### `getDefaults()`
 
