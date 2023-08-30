@@ -21,7 +21,7 @@ class Logtastic {
      *     Possible values: 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
      * @returns {void}
      */
-    log(text, { color = this.colors.reset, style = this.styles.reset, bgStyle }) {
+    log(text, { color = this.colors.reset, style = '', bgStyle }) {
         const appliedColors = color ? this.colors[color] : "";
         const appliedStyles = style ? this.styles[style] : "";
         const appliedBg = bgStyle ? this.bg[bgStyle] : "";
@@ -39,4 +39,4 @@ class Logtastic {
     }
 }
 
-module.exports = Logtastic;
+module.exports = new Logtastic();
