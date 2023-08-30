@@ -52,10 +52,10 @@ class Logtastic {
 
             try {
                 if (typeof text === 'string') {
-                    console.log(`${timestamp && timestamp + '\n'}${traceStack && traceStack+':\n'}${appliedColors}${appliedStyles}${appliedBg}${text}${this.colors.reset}${this.styles.reset}`);
+                    console.log(`${timestamp && timestamp + '\n' || ''}${traceStack && traceStack+':\n' || ''}${appliedColors}${appliedStyles}${appliedBg}${text}${this.colors.reset}${this.styles.reset}`);
                 } else {
                     const styledObject = JSON.stringify(text, null, 2); // Pretty-print with 2-space indentation
-                    console.log(`${timestamp && timestamp + '\n'}${traceStack && traceStack+':\n'}${appliedColors}${appliedStyles}${appliedBg}${styledObject}${this.styles.reset}${this.colors.reset}`);
+                    console.log(`${timestamp && timestamp + '\n' || ''}${traceStack && traceStack+':\n' || ''}${appliedColors}${appliedStyles}${appliedBg}${styledObject}${this.styles.reset}${this.colors.reset}`);
                 }
             } catch (err) {
                 console.warn('Issue with Logtastic. Which is not very logtastic of it');
