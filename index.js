@@ -43,22 +43,44 @@ class Logtastic {
     log(text, options = {}) {
         const { color = this.default.color, style = this.default.style, bgStyle = this.default.bg, time = false, override = false, trace = false } = options;
         if (!this.mode.silent || override) {
-            const appliedColors = color ? this.colors[color] : "";
-            const appliedStyles = style ? this.styles[style] : "";
-            const appliedBg = bgStyle ? this.bg[bgStyle] : "";
+            const appliedColors = this.colors[color] || "";
+            const appliedStyles = this.styles[style] || "";
+            const appliedBg = this.bg[bgStyle] || "";
 
-            let timestamp = time && new Date().toLocaleString() || '';
-            let traceStack = trace && new Error().stack.split('\n').slice(2).join('\n') || '';
+            const timestamp = time ? new Date().toLocaleString() + '\n' : '';
+            const traceStack = trace ? (new Error().stack.split('\n').slice(2).join('\n') + '\n') : '';
 
             try {
-                if (typeof text === 'string') {
-                    console.log(`${timestamp && timestamp + '\n' || ''}${traceStack && traceStack+':\n' || ''}${appliedColors}${appliedStyles}${appliedBg}${text}${this.colors.reset}${this.styles.reset}`);
-                } else {
-                    const styledObject = JSON.stringify(text, null, 2); // Pretty-print with 2-space indentation
-                    console.log(`${timestamp && timestamp + '\n' || ''}${traceStack && traceStack+':\n' || ''}${appliedColors}${appliedStyles}${appliedBg}${styledObject}${this.styles.reset}${this.colors.reset}`);
-                }
+                let formattedText = (typeof text === 'string') ? text : (text instanceof Error) ? text.message : JSON.stringify(text, null, 2);
+
+                console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n'+traceStack || ''}${this.colors.reset}${this.styles.reset}`);
             } catch (err) {
                 console.warn('Issue with Logtastic. Which is not very logtastic of it');
+                console.error(err);
+                console.log(text);
+            }
+        }
+    }
+
+
+    err(text, options = {}) {
+        const { color = this.default.err.color, style = this.default.err.style, bgStyle = this.default.err.bg, time = true, override = false, trace = true, escape = true } = options;
+        if (!this.mode.silent || override) {
+            const appliedColors = this.colors[color] || "";
+            const appliedStyles = this.styles[style] || "";
+            const appliedBg = this.bg[bgStyle] || "";
+
+            const timestamp = time ? new Date().toLocaleString() + '\n' : '';
+            const traceStack = trace ? (new Error().stack.split('\n').slice(2).join('\n') + '\n') : '';
+
+            try {
+                const formattedText = (typeof text === 'string') ? text : (text instanceof Error) ? text.message : JSON.stringify(text, null, 2);
+
+                console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n'+traceStack || ''}${this.colors.reset}${this.styles.reset}`);
+                if (escape) process.exit(1);
+            } catch (err) {
+                console.warn('Issue with Logtastic. Which is not very logtastic of it');
+                console.error(err);
                 console.log(text);
             }
         }
