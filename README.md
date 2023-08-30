@@ -1,4 +1,5 @@
 # Logtastic
+![npm (scoped)](https://img.shields.io/npm/v/%40ofrepose/logtastic)![npm package minimized gzipped size (scoped version select exports)](https://img.shields.io/bundlejs/size/%40ofrepose/logtastic%401.0.1)
 
 Logtastic is a simple npm package that provides a flexible way to log messages with customizable colors, styles, and backgrounds. It's designed to make your console logs more visually appealing and easier to differentiate. With Logtastic, you can easily add a touch of style to your terminal output.
 
