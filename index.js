@@ -10,6 +10,16 @@ class Logtastic {
             color: '',
             style: '',
             bg: '',
+            warn: { // TODO: logger.warn default values
+                color: 'yellow',
+                style: 'bold',
+                bg: '',
+            },
+            err: { // TODO: logger.err default values
+                color: 'red',
+                style: 'bold',
+                bg: '',
+            }
         }
         this.mode = {
             silent: false
@@ -31,20 +41,21 @@ class Logtastic {
      * @returns {void}
      */
     log(text, options = {}) {
-        const { color = this.default.color, style = this.default.style, bgStyle = this.default.bg, time = false, override = false } = options;
+        const { color = this.default.color, style = this.default.style, bgStyle = this.default.bg, time = false, override = false, trace = false } = options;
         if (!this.mode.silent || override) {
             const appliedColors = color ? this.colors[color] : "";
             const appliedStyles = style ? this.styles[style] : "";
             const appliedBg = bgStyle ? this.bg[bgStyle] : "";
 
             let timestamp = time && new Date().toLocaleString() || '';
+            let traceStack = trace && new Error().stack.split('\n').slice(2).join('\n') || '';
 
             try {
                 if (typeof text === 'string') {
-                    console.log(`${timestamp}\n${appliedColors}${appliedStyles}${appliedBg}${text}${this.colors.reset}${this.styles.reset}`);
+                    console.log(`${timestamp && timestamp + '\n'}${traceStack && traceStack+':\n'}${appliedColors}${appliedStyles}${appliedBg}${text}${this.colors.reset}${this.styles.reset}`);
                 } else {
                     const styledObject = JSON.stringify(text, null, 2); // Pretty-print with 2-space indentation
-                    console.log(`${timestamp+'\n'}${appliedColors}${appliedStyles}${appliedBg}${styledObject}${this.styles.reset}${this.colors.reset}`);
+                    console.log(`${timestamp && timestamp + '\n'}${traceStack && traceStack+':\n'}${appliedColors}${appliedStyles}${appliedBg}${styledObject}${this.styles.reset}${this.colors.reset}`);
                 }
             } catch (err) {
                 console.warn('Issue with Logtastic. Which is not very logtastic of it');
@@ -143,7 +154,7 @@ class Logtastic {
         if (silent && !!silent) {
             this.mode.silent = silent;
         }
-        this.log(`Silent mode is ${silent && 'active, logs will not be visible' || 'inactive, logs will be visible'}`,{ override: true })
+        this.log(`Silent mode is ${silent && 'active, logs will not be visible' || 'inactive, logs will be visible'}`, { override: true })
     }
 }
 
