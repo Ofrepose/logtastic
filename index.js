@@ -39,15 +39,39 @@ class Logtastic {
         };
     }
 
+
+    /**
+     * Activates the logging to file mode and specifies the log directory.
+     *
+     * This function sets the logging mode to write logs to a file and designates
+     * the directory where the log files will be saved. Additionally, it updates
+     * the internal state to reflect the change in logging mode.
+     *
+     * @param {string} directory - The directory path where log files will be saved.
+     * @returns {void}
+     */
     setToFileMode(directory) {
         this.mode.logging.toFile.directory = directory;
         this.mode.logging.logToFile = true;
         this.log('Logging to file mode is active. Logs will be saved to the specified directory.', { color: 'green', override: true });
     }
 
-    setLoggingMode(active){
+
+    /**
+     * Sets the logging mode for writing logs to a file.
+     *
+     * This function enables or disables the logging mode for writing logs to a file.
+     * It accepts a boolean value to specify whether the logging to file mode should
+     * be activated (true) or deactivated (false). If the provided value is not a boolean,
+     * a warning is issued, and the function defaults to deactivating the logging mode.
+     * The internal state of the application is then updated to reflect the new logging mode.
+     *
+     * @param {boolean} active - A boolean value indicating whether logging to file mode should be active.
+     * @returns {void}
+     */
+    setLoggingMode(active) {
         let activeMode = active;
-        if(typeof active !== 'boolean'){
+        if (typeof active !== 'boolean') {
             this.warn(`setLoggingMode accepts only true or false, not ${active}. Defaulting to false.`);
             activeMode = false;
         }
@@ -55,6 +79,21 @@ class Logtastic {
         this.log(`LoggingMode is set to: ${this.mode.logging.logToFile}`);
     }
 
+
+    /**
+     * Write a log message to a file with specified options.
+     *
+     * This function writes a log message to a file in the specified directory.
+     * If the logging to file mode is not configured (directory not set), an error message is
+     * displayed in the console. Otherwise, the log message is appended to a file named according to
+     * the specified 'type' (default is 'log'; other options should be 'warn' or 'err') in the designated directory. 
+     * If any errors occur during file operations, appropriate error messages are displayed.
+     *
+     * @param {string} text - The log message text to be written to the file.
+     * @param {Object} [options={}] - Options for customizing the log entry.
+     *   @param {string} [options.type='log'] - The type of the log entry (e.g., 'log', 'warn', 'err').
+     * @returns {void}
+     */
     logToFile(text, options = {}) {
         const { directory } = this.mode.logging.toFile;
         const { type = 'log' } = options;
@@ -82,16 +121,23 @@ class Logtastic {
 
 
     /**
-     * Logs a message with customizable color, style, and background.
+     *
+     * This function logs a message with customizable color, style, and background. The content
+     * of the message and its formatting can be customized using the 'text' parameter and the
+     * 'options' object. If the 'override' option is true, the message is displayed regardless
+     * of the logging mode. Otherwise, the message is displayed only if the logging mode is not
+     * silent (or if overridden). Additionally, if logging to file mode is enabled, the message
+     * is also written to a file. Timestamps and trace information can be added to the message
+     * if specified in the 'options' object.
      *
      * @param {string|object} text - The text or object to be logged.
-     * @param {Object} options - Options for styling the output.
-     *   @param {string} [options.color] - The text color to apply.
-     *     Possible values: 'reset', 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
-     *   @param {string} [options.style] - The text style to apply.
-     *     Possible values: 'reset', 'bold', 'dim', 'italic', 'underline', 'inverse', 'hidden', 'strikethrough'.
-     *   @param {string} [options.bgStyle] - The background color to apply.
-     *     Possible values: 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'.
+     * @param {Object} [options={}] - Options for styling and logging the message.
+     *   @param {string} [options.color] - The text color to apply to the message.
+     *   @param {string} [options.style] - The text style to apply to the message.
+     *   @param {string} [options.bgStyle] - The background color for the message.
+     *   @param {boolean} [options.time=false] - Whether to include a timestamp in the message.
+     *   @param {boolean} [options.override=false] - Forcefully override the logging mode.
+     *   @param {boolean} [options.trace=false] - Whether to include stack trace information.
      * @returns {void}
      */
     log(text, options = {}) {
@@ -125,6 +171,26 @@ class Logtastic {
     }
 
 
+    /**
+     *
+     * This function logs a warning message with customizable color, style, and background.
+     * The content of the warning message and its formatting can be customized using the 'text'
+     * parameter and the 'options' object. If the 'override' option is true, the warning message
+     * is displayed regardless of the logging mode. Otherwise, the warning message is displayed
+     * only if the logging mode is not silent (or if overridden). Additionally, if logging to file
+     * mode is enabled, the warning message is also written to a file. Timestamps and trace information
+     * can be added to the message if specified in the 'options' object.
+     *
+     * @param {string|object} text - The text or object to be logged as a warning message.
+     * @param {Object} [options={}] - Options for styling and logging the warning.
+     *   @param {string} [options.color] - The text color to apply to the warning message.
+     *   @param {string} [options.style] - The text style to apply to the warning message.
+     *   @param {string} [options.bgStyle] - The background color for the warning message.
+     *   @param {boolean} [options.time=false] - Whether to include a timestamp in the message.
+     *   @param {boolean} [options.override=false] - Forcefully override the logging mode.
+     *   @param {boolean} [options.trace=false] - Whether to include stack trace information.
+     * @returns {void}
+     */
     warn(text, options = {}) {
         const {
             color = this.default.warn.color,
@@ -156,6 +222,27 @@ class Logtastic {
     }
 
 
+    /**
+     *
+     * This function logs an error message with customizable color, style, and background. The content
+     * of the error message and its formatting can be customized using the 'text' parameter and the
+     * 'options' object. If the 'override' option is true, the error message is displayed regardless
+     * of the logging mode. Otherwise, the error message is displayed only if the logging mode is not
+     * silent (or if overridden). Additionally, if logging to file mode is enabled, the error message
+     * is also written to a file. Timestamps, trace information, and the ability to force an exit (if specified)
+     * can be added to the message if specified in the 'options' object.
+     *
+     * @param {string|object} text - The text or object to be logged as an error message.
+     * @param {Object} [options={}] - Options for styling and logging the error.
+     *   @param {string} [options.color] - The text color to apply to the error message.
+     *   @param {string} [options.style] - The text style to apply to the error message.
+     *   @param {string} [options.bgStyle] - The background color for the error message.
+     *   @param {boolean} [options.time=true] - Whether to include a timestamp in the message.
+     *   @param {boolean} [options.override=false] - Forcefully override the logging mode.
+     *   @param {boolean} [options.trace=true] - Whether to include stack trace information.
+     *   @param {boolean} [options.escape=true] - Whether to forcefully exit the application after logging.
+     * @returns {void}
+     */
     err(text, options = {}) {
         const {
             color = this.default.warn.color,
