@@ -1,6 +1,6 @@
 [<img src="https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic2.jpg">](https://github.com/Ofrepose/Ofrepose/blob/master/imgs/logtastic2.jpg)
 
-![npm (scoped)](https://img.shields.io/npm/v/%40ofrepose/logtastic)![npm package minimized gzipped size (scoped version select exports)](https://img.shields.io/bundlejs/size/%40ofrepose/logtastic%401.0.1)![npm](https://img.shields.io/npm/dw/%40ofrepose/logtastic)
+![npm (scoped)](https://img.shields.io/npm/v/%40ofrepose/logtastic)![npm](https://img.shields.io/npm/dw/%40ofrepose/logtastic)![npm package minimized gzipped size (scoped version select exports)](https://img.shields.io/bundlejs/size/%40ofrepose/logtastic%401.0.1)
 
 Logtastic is a versatile Node.js logging utility that allows you to easily log messages, warnings, and errors with customizable formatting options. It provides flexibility in adjusting text color, style, background color, and more. You can also choose to log messages to files, databases, or both.
 
