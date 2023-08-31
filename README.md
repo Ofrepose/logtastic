@@ -20,12 +20,43 @@ npm install @ofrepose/logtastic
 ```javascript
 const logger = require('@ofrepose/logtastic');
 
-// Logging a simple text message
+// Simple Logging a simple text message
 logger.log("Hello, Logtastic!", { color: "green", style: "bold" });
 
-// Logging an object with custom styling
+// Simple Logging an object with custom styling
 const data = { name: "John", age: 30, occupation: "Developer" };
 logger.log(data, { color: "blue", bgStyle: "yellow" });
+
+// Log messages
+logger.log('This is a log message.', {
+    color: 'green', // optional - else default values are used
+    style: 'bold', // optional - else default values are used
+    bgStyle: 'black', // optional - else default values are used
+    time: true, // optional
+    override: false, // optional
+    trace: false // optional
+});
+
+// Log warnings
+logger.warn('This is a warning.', {
+    color: 'yellow', // optional - else default values are used
+    style: 'dim', // optional - else default values are used
+    bgStyle: 'red', // optional - else default values are used
+    time: true, // optional
+    override: false, // optional
+    trace: false // optional
+});
+
+// Log errors
+logger.err('This is an error.', {
+    color: 'red', // optional else default values are used
+    style: 'bold', // optional else default values are used
+    bgStyle: 'white', // optional else default values are used
+    time: true, // optional
+    override: false, // optional
+    trace: true, // optional
+    escape: true // optional
+});
 
 // Configure logging mode
 logger.setMode({ silent: false }); // Enable log visibility
@@ -116,7 +147,13 @@ Set default log message formatting options.
   - `color`: Default text color.
   - `style`: Default text style.
   - `bgStyle`: Default background style.
-  - `type`: Default log type ('log', 'warn', or 'err').
+  - `type`: type of log you are editing default type for ('log', 'warn', or 'err').
+
+### `logger.setLoggingMode(active)`
+
+Sets the logging mode for writing logs to a file.
+
+- `active`: A boolean value indicating whether logging to file mode should be active.
 
 ### `logger.setToFileMode(directory)`
 
