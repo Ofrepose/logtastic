@@ -24,7 +24,6 @@ class Logtastic {
                 bg: '',
             }
         }
-        // also, create custom .log | .warn | .err
         this.mode = {
             silent: false,
             logging: {
@@ -32,11 +31,42 @@ class Logtastic {
                 toFile: {
                     directory: '',
                 },
+                // TODO
+                // im thinking i want user to provide the callback function that sends data to their db of choice
+                // this allows them to use this logging in their current environment
+                // as well as limits reliance on this to send requests
                 toDB: {
-                    query: ''
+                    query: '',
+                    maxBatchCount: 10,
+                    maxBatchTimeout: 50000,
+                    batchedLogs: {
+                        content: [],
+                    }
                 },
             }
         };
+    }
+
+    setToDB(settings = {}) {
+        const {
+            query = this.mode.logging.toDB.query,
+            maxBatchCount = this.mode.logging.toDB.maxBatchCount,
+            maxBatchTimeout = this.mode.logging.toDB.maxBatchTimeout
+        } = settings;
+
+        if (!query || !typeof query === 'string') {
+            this.warn(`query required in setToDB({ query: <queryValue> })`)
+        } else {
+            this.mode.logging.toDB.query = query;
+            this.mode.logging.toDB.maxBatchCount = maxBatchCount;
+            this.mode.logging.toDB.maxBatchTimeout = maxBatchTimeout;
+            this.log(
+                `dB set to
+                query: ${this.mode.logging.toDB.query}
+                maxBatchCount: ${this.mode.logging.toDB.maxBatchCount}
+                maxBatchTimeout: ${this.mode.logging.toDB.maxBatchTimeout}`
+            )
+        }
     }
 
 
@@ -53,7 +83,10 @@ class Logtastic {
     setToFileMode(directory) {
         this.mode.logging.toFile.directory = directory;
         this.mode.logging.logToFile = true;
-        this.log('Logging to file mode is active. Logs will be saved to the specified directory.', { color: 'green', override: true });
+        this.log(
+            'Logging to file mode is active. Logs will be saved to the specified directory.',
+            { color: 'green', override: true }
+        );
     }
 
 
@@ -99,23 +132,32 @@ class Logtastic {
         const { type = 'log' } = options;
 
         if (!directory) {
-            console.log('Logging to file mode is not configured. Use setToFileMode(directory) to set the log directory.', { color: 'red', override: true });
+            console.log(
+                'Logging to file mode is not configured. Use setToFileMode(directory) to set the log directory.',
+                { color: 'red', override: true }
+            );
             return;
         }
 
         try {
             const filePath = `${directory}/log_${type}.txt`;
-
-            fs.appendFile(filePath, text + '\n', (err) => {
-                if (err) {
-                    console.error('Error writing to log file.', err);
-                } else {
-                    console.log('Log written to file successfully.', { color: 'green', override: true });
-                }
-            });
+            writeToFile(filePath, text + '\n');
         } catch (err) {
             console.log(err)
         }
+    }
+
+    writeToFile(path, data) {
+        fs.appendFile(path, data, (err) => {
+            if (err) {
+                console.error('Error writing to log file.', err);
+            } else {
+                console.log(
+                    'Log written to file successfully.',
+                    { color: 'green', override: true }
+                );
+            }
+        });
     }
 
 
@@ -149,24 +191,41 @@ class Logtastic {
             override = false,
             trace = false
         } = options;
-        if (!this.mode.silent || override) {
-            const appliedColors = this.colors[color] || "";
-            const appliedStyles = this.styles[style] || "";
-            const appliedBg = this.bg[bgStyle] || "";
 
-            const timestamp = time ? new Date().toLocaleString() + '\n' : '';
-            const traceStack = trace ? (new Error().stack.split('\n').slice(2).join('\n') + '\n') : '';
+        if (this.mode.silent && !override) {
+            return;
+        }
 
-            try {
-                let formattedText = (typeof text === 'string') ? text : (text instanceof Error) ? text.message : JSON.stringify(text, null, 2);
+        const appliedColors = this.colors[color] || "";
+        const appliedStyles = this.styles[style] || "";
+        const appliedBg = this.bg[bgStyle] || "";
 
-                console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`);
-                this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'log' })
-            } catch (err) {
-                console.warn('Issue with Logtastic. Which is not very logtastic of it');
-                console.error(err);
-                console.log(text);
-            }
+        const timestamp = time ? new Date().toLocaleString() + '\n' : '';
+
+        const traceStack =
+            trace
+                ? new Error()
+                    .stack
+                    .split('\n')
+                    .slice(2)
+                    .join('\n') + '\n'
+                : '';
+
+        try {
+            let formattedText =
+                typeof text === 'string'
+                    ? text
+                    : text instanceof Error
+                        ? text.message
+                        : JSON.stringify(text, null, 2);
+
+            console.log(
+                `${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`
+            );
+            this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'log' })
+        } catch (err) {
+            console.warn('Issue with Logtastic. Which is not very logtastic of it');
+            console.error(err);
         }
     }
 
@@ -200,24 +259,38 @@ class Logtastic {
             override = false,
             trace = false
         } = options;
-        if (!this.mode.silent || override) {
-            const appliedColors = this.colors[color] || "";
-            const appliedStyles = this.styles[style] || "";
-            const appliedBg = this.bg[bgStyle] || "";
 
-            const timestamp = time ? new Date().toLocaleString() + '\n' : '';
-            const traceStack = trace ? (new Error().stack.split('\n').slice(2).join('\n') + '\n') : '';
+        if (this.mode.silent && !override) {
+            return;
+        }
 
-            try {
-                let formattedText = (typeof text === 'string') ? text : (text instanceof Error) ? text.message : JSON.stringify(text, null, 2);
+        const appliedColors = this.colors[color] || "";
+        const appliedStyles = this.styles[style] || "";
+        const appliedBg = this.bg[bgStyle] || "";
 
-                console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`);
-                this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'warn' })
-            } catch (err) {
-                console.warn('Issue with Logtastic. Which is not very logtastic of it');
-                console.error(err);
-                console.log(text);
-            }
+        const timestamp = time ? new Date().toLocaleString() + '\n' : '';
+        const traceStack =
+            trace
+                ? new Error()
+                    .stack
+                    .split('\n')
+                    .slice(2)
+                    .join('\n') + '\n'
+                : '';
+
+        try {
+            let formattedText =
+                typeof text === 'string'
+                    ? text
+                    : text instanceof Error
+                        ? text.message
+                        : JSON.stringify(text, null, 2);
+
+            console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`);
+            this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'warn' })
+        } catch (err) {
+            console.warn('Issue with Logtastic. Which is not very logtastic of it');
+            console.error(err);
         }
     }
 
@@ -253,25 +326,43 @@ class Logtastic {
             trace = true,
             escape = true
         } = options;
-        if (!this.mode.silent || override) {
-            const appliedColors = this.colors[color] || "";
-            const appliedStyles = this.styles[style] || "";
-            const appliedBg = this.bg[bgStyle] || "";
 
-            const timestamp = time ? new Date().toLocaleString() + '\n' : '';
-            const traceStack = trace ? (new Error().stack.split('\n').slice(2).join('\n') + '\n') : '';
+        if (this.mode.silent && !override) {
+            return
+        }
 
-            try {
-                const formattedText = (typeof text === 'string') ? text : (text instanceof Error) ? text.message : JSON.stringify(text, null, 2);
+        const appliedColors = this.colors[color] || "";
+        const appliedStyles = this.styles[style] || "";
+        const appliedBg = this.bg[bgStyle] || "";
 
-                console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`);
-                this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'err' })
-                if (escape) process.exit(1);
-            } catch (err) {
-                console.warn('Issue with Logtastic. Which is not very logtastic of it');
-                console.error(err);
-                console.log(text);
-            }
+        const timestamp =
+            time
+                ? new Date().toLocaleString() + '\n'
+                : '';
+
+        const traceStack =
+            trace
+                ? new Error()
+                    .stack
+                    .split('\n')
+                    .slice(2)
+                    .join('\n') + '\n'
+                : '';
+
+        try {
+            const formattedText =
+                typeof text === 'string'
+                    ? text
+                    : text instanceof Error
+                        ? text.message
+                        : JSON.stringify(text, null, 2);
+
+            console.log(`${appliedColors}${appliedStyles}${appliedBg}${timestamp}${formattedText}${trace && '\n' + traceStack || ''}${this.colors.reset}${this.styles.reset}`);
+            this.mode.logging.logToFile && this.logToFile(new Date().toLocaleString() + ':' + formattedText, { type: 'err' })
+            if (escape) process.exit(1);
+        } catch (err) {
+            console.warn('Issue with Logtastic. Which is not very logtastic of it');
+            console.error(err);
         }
     }
 
@@ -286,9 +377,18 @@ class Logtastic {
      * @returns {void}
      */
     getDefaults() {
-        this.log(`Your default settings are:`, { color: 'blue', override: true });
-        this.log(this.default, { color: 'blue', override: true });
-        this.log(`You can change these settings by using:\nIE: logger.setDefaults({ color: "white", style: "bold", type: 'log'|'warn'|'err' })`, { override: true });
+        this.log(
+            `Your default settings are:`,
+            { color: 'blue', override: true }
+        );
+        this.log(
+            this.default,
+            { color: 'blue', override: true }
+        );
+        this.log(
+            `You can change these settings by using:\nIE: logger.setDefaults({ color: "white", style: "bold", type: 'log'|'warn'|'err' })`,
+            { override: true }
+        );
     }
 
 
@@ -313,13 +413,12 @@ class Logtastic {
     setDefaults(options = {}) {
         const { color, style, bgStyle, type } = options;
 
-        this.log(`Logtastic:`, { color: 'blue', override: true });
-
         const validTypes = ['log', 'warn', 'err'];
 
         if (!validTypes.includes(type)) {
             this.log(`Your chosen type '${type}' is not valid. Please choose from: ${validTypes}`,
-                { color: 'red', override: true });
+                { color: 'red', override: true }
+            );
             return;
         }
 
@@ -327,7 +426,10 @@ class Logtastic {
 
         if (color) {
             if (!this.colors[color]) {
-                this.log(`The color '${color}' is not valid.`, { color: 'red', override: true });
+                this.log(
+                    `The color '${color}' is not valid.`,
+                    { color: 'red', override: true }
+                );
             } else {
                 this.default[type].color = color;
                 status += `Default color set to: ${color}\n`;
@@ -336,7 +438,10 @@ class Logtastic {
 
         if (style) {
             if (!this.styles[style]) {
-                this.log(`The style '${style}' is not valid.`, { color: 'red', override: true });
+                this.log(
+                    `The style '${style}' is not valid.`,
+                    { color: 'red', override: true }
+                );
             } else {
                 this.default[type].style = style;
                 status += `Default style set to: ${style}\n`;
@@ -345,7 +450,10 @@ class Logtastic {
 
         if (bgStyle) {
             if (!this.bg[bgStyle]) {
-                this.log(`The background style '${bgStyle}' is not valid.`, { color: 'red', override: true });
+                this.log(
+                    `The background style '${bgStyle}' is not valid.`,
+                    { color: 'red', override: true }
+                );
             } else {
                 this.default[type].bg = bgStyle;
                 status += `Default background style set to: ${bgStyle}\n`;
@@ -357,9 +465,18 @@ class Logtastic {
 
 
     getMode() {
-        this.log(`Your current mode is:`, { color: 'blue', override: true });
-        this.log(this.mode, { color: 'blue', override: true });
-        this.log(`You can change these settings by using:\nIE: logger.setMode({ silent: true/false })`, { override: true });
+        this.log(
+            `Your current mode is:`,
+            { color: 'blue', override: true }
+        );
+        this.log(
+            this.mode,
+            { color: 'blue', override: true }
+        );
+        this.log(
+            `You can change these settings by using:\nIE: logger.setMode({ silent: true/false })`,
+            { override: true }
+        );
     }
 
 
@@ -380,7 +497,10 @@ class Logtastic {
         if (silent && !!silent) {
             this.mode.silent = silent;
         }
-        this.log(`Silent mode is ${silent && 'active, logs will not be visible' || 'inactive, logs will be visible'}`, { override: true })
+        this.log(
+            `Silent mode is ${silent && 'active, logs will not be visible' || 'inactive, logs will be visible'}`,
+            { override: true }
+        )
     }
 }
 
